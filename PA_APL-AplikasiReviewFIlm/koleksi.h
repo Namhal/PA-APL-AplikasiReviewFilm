@@ -45,49 +45,18 @@ inline void menuFavorit() {
         system("cls");
         cetakJudul("Film Favorit");
 
-        int indexFavorit[MAX];
+        Film hasilFavorit[MAX];
         int totalFav = 0;
 
-        for (int i = 0; i < totalReview; i++) {
-            if (listReview[i].idUser == userAktif->id && listReview[i].rating >= 8) {
-                int idFilm = listReview[i].idFilm;
-                bool sudahAda = false;
-
-                for (int j = 0; j < totalFav; j++) {
-                    if (listFilm[indexFavorit[j]].id == idFilm) {
-                        sudahAda = true;
-                        break;
-                    }
-                }
-
-                if (!sudahAda) {
-                    for (int k = 0; k < totalFilm; k++) {
-                        if (listFilm[k].id == idFilm) {
-                            indexFavorit[totalFav++] = k;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        for (int i = 0; i < totalFav - 1; i++) {
-            for (int j = i + 1; j < totalFav; j++) {
-                if (listFilm[indexFavorit[i]].judul > listFilm[indexFavorit[j]].judul) {
-                    int temp = indexFavorit[i];
-                    indexFavorit[i] = indexFavorit[j];
-                    indexFavorit[j] = temp;
-                }
-            }
-        }
+        sortFavoritAZ(hasilFavorit, totalFav);
 
         if (totalFav == 0) {
             cout << KUNING << " belum ada favorit" << RESET << endl;
         } else {
             for (int i = 0; i < totalFav; i++) {
                 cout << CYAN << " [" << i + 1 << "] " << RESET
-                     << listFilm[indexFavorit[i]].judul << " (" << listFilm[indexFavorit[i]].tahun << ")"
-                     << KUNING << " - " << rataRating(listFilm[indexFavorit[i]].id) << "/10" << RESET << endl;
+                     << hasilFavorit[i].judul << " (" << hasilFavorit[i].tahun << ")"
+                     << KUNING << " - " << rataRating(hasilFavorit[i].id) << "/10" << RESET << endl;
             }
         }
 
@@ -107,7 +76,7 @@ inline void menuFavorit() {
             bersihBuffer();
 
             if (nomorPilih >= 1 && nomorPilih <= totalFav) {
-                lihatDetailFilm(listFilm[indexFavorit[nomorPilih - 1]].id);
+                lihatDetailFilm(hasilFavorit[nomorPilih - 1].id);
             } else {
                 cout << MERAH << " nomor tidak valid" << RESET << endl;
                 tekanEnter();

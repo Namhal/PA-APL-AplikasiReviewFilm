@@ -12,6 +12,10 @@ inline bool usernameSudahAda(const string& username) {
     return false;
 }
 
+inline bool roleValid(const string& role) {
+    return role == "admin" || role == "user";
+}
+
 inline void prosesRegistrasi() {
     system("cls");
 
@@ -23,9 +27,6 @@ inline void prosesRegistrasi() {
     cout << " Registrasi" << endl;
     cetakGaris('=', 42);
     cout << RESET << endl;
-
-    if (totalUser <= 0) {
-    }
 
     int kapasitasUser = sizeof(listUser) / sizeof(listUser[0]);
     if (totalUser >= kapasitasUser) {
@@ -63,8 +64,10 @@ inline void prosesRegistrasi() {
         return;
     }
 
+    listUser[totalUser].id = idUserBaru++;
     listUser[totalUser].username = inputNama;
     listUser[totalUser].password = inputPassword;
+    listUser[totalUser].role = "user";
     totalUser++;
 
     cout << endl << HIJAU << TEBAL << " registrasi berhasil, silakan login" << RESET << endl;
@@ -103,6 +106,10 @@ inline User* prosesLogin() {
 
         for (int i = 0; i < totalUser; i++) {
             if (listUser[i].username == inputNama && listUser[i].password == inputPassword) {
+                if (!roleValid(listUser[i].role)) {
+                    listUser[i].role = "user";
+                }
+
                 cout << endl << HIJAU << TEBAL << " halo, " << inputNama << "!" << RESET << endl;
                 tekanEnter();
                 return &listUser[i];
@@ -145,13 +152,13 @@ inline User* menuLoginRegis() {
             if (userAktif != nullptr) {
                 return userAktif;
             }
-        } 
+        }
         else if (pilihan == 2) {
             prosesRegistrasi();
-        } 
+        }
         else if (pilihan == 3) {
             return nullptr;
-        } 
+        }
         else {
             cout << endl << MERAH << " pilihan tidak valid" << RESET << endl;
             tekanEnter();

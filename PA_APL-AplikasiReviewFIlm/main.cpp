@@ -7,23 +7,29 @@ int main() {
     totalUser++;
 
     while (true) {
-        string opsi[] = {"login", "keluar"};
-        int pil = pilihMenu(opsi, 2, "Review Film & Serial");
+        string opsi[] = {"login", "registrasi", "keluar"};
+        int pil = pilihMenu(opsi, 3, "Review Film & Serial");
 
         if (pil == 0) {
             userAktif = prosesLogin();
-            if (userAktif != nullptr)
+            if (userAktif != nullptr) {
                 menuUser();
-
-        } else {
+            }
+        } 
+        else if (pil == 1) {
+            prosesRegistrasi();
+        } 
+        else {
             system("cls");
             cout << endl << CYAN;
             cetakGaris('=', 42);
             cout << " " << KUNING << "makasih sudah pake aplikasinya!" << RESET << endl;
-            cout << CYAN; cetakGaris('=', 42);
+            cout << CYAN;
+            cetakGaris('=', 42);
             cout << RESET << endl << endl;
             break;
         }
     }
+
     return 0;
 }
