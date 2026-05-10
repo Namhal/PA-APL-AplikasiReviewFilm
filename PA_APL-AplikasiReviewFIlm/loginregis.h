@@ -41,7 +41,7 @@ inline void prosesRegistrasi() {
     bersihBuffer();
     cout << KUNING << " username baru: " << RESET;
     cin >> inputNama;
-
+// commitulang
     if (inputNama.empty()) {
         cout << endl << MERAH << " username tidak boleh kosong" << RESET << endl;
         tekanEnter();
