@@ -1,80 +1,60 @@
-
 #ifndef KELOLAFILM_H
 #define KELOLAFILM_H
 
-#include "tampilan.h"
 #include "detailfilm.h"
-#include "data.h"
 
-bool hanyaAngka(const string& teks) {
-    if (teks.empty()) return false;
-    for (int i = 0; i < teks.size(); i++) {
-        if (!isdigit(teks[i])) return false;
-    }
-    return true;
-}
+void menuKelolaFilm()
+{
+    while (true)
+    {
+        string opsiUtama[] = {"tambah film", "pilih film", "kembali"};
+        int pil = pilihMenu(opsiUtama, 3, "Kelola Film");
 
-int jumlahReviewFilm(int idFilm) {
-    int jumlah = 0;
-    for (int i = 0; i < totalReview; i++) {
-        if (listReview[i].idFilm == idFilm) {
-            jumlah++;
-        }
-    }
-    return jumlah;
-}
-
-void menuKelolaFilm() {
-    while (true) {
-        system("cls");
-        cetakJudul("Kelola Film");
-
-        if (totalFilm == 0) {
-            cout << KUNING << " belum ada film" << RESET << endl;
-        } else {
-            for (int i = 0; i < totalFilm; i++) {
-                cout << CYAN << " [" << i + 1 << "] " << RESET
-                    << listFilm[i].judul << " (" << listFilm[i].tahun << ")"
-                    << KUNING << " - " << listFilm[i].studio
-                    << " - " << jumlahReviewFilm(listFilm[i].id) << " review"
-                    << RESET << endl;
-            }
-        }
-
-        string opsi[] = {"tambah film", "pilih film", "kembali"};
-        int pil = pilihMenu(opsi, 3, "Kelola Film");
-
-        if (pil == 0) {
+        if (pil == 0)
+        {
             system("cls");
             cetakJudul("Tambah Film");
 
-            if (totalFilm >= MAX) {
+            if (totalFilm >= MAX)
+            {
                 cout << MERAH << " kapasitas film penuh" << RESET << endl;
                 tekanEnter();
                 continue;
             }
 
-            string judulBaru, studioBaru, tahunInput;
+            string judulBaru, studioBaru, inputTahun;
+            int tahunBaru = 0;
 
             cout << KUNING << " judul : " << RESET;
-            getline(cin, judulBaru);
-            if (judulBaru.empty()) {
+            judulBaru = bacaInputBaris();
+            if (judulBaru.empty())
+            {
                 cout << MERAH << " judul tidak boleh kosong" << RESET << endl;
                 tekanEnter();
                 continue;
             }
 
             cout << KUNING << " tahun : " << RESET;
-            getline(cin, tahunInput);
-            if (!hanyaAngka(tahunInput)) {
-                cout << MERAH << " tahun harus angka" << RESET << endl;
+            inputTahun = bacaInputBaris();
+            if (inputTahun.empty())
+            {
+                cout << MERAH << " tahun tidak boleh kosong" << RESET << endl;
                 tekanEnter();
                 continue;
             }
 
+            if (!hanyaAngka(inputTahun))
+            {
+                cout << MERAH << " tahun harus angka" << RESET << endl;
+                tekanEnter();
+                continue;
+            }
+            tahunBaru = stoi(inputTahun);
+
             cout << KUNING << " studio: " << RESET;
-            getline(cin, studioBaru);
-            if (studioBaru.empty()) {
+            studioBaru = bacaInputBaris();
+            if (studioBaru.empty())
+            {
                 cout << MERAH << " studio tidak boleh kosong" << RESET << endl;
                 tekanEnter();
                 continue;
@@ -82,101 +62,115 @@ void menuKelolaFilm() {
 
             listFilm[totalFilm].id = idFilmBaru++;
             listFilm[totalFilm].judul = judulBaru;
-            listFilm[totalFilm].tahun = stoi(tahunInput);
+            listFilm[totalFilm].tahun = tahunBaru;
             listFilm[totalFilm].studio = studioBaru;
             totalFilm++;
 
-            cout << endl << HIJAU << TEBAL << " film ditambahkan!" << RESET << endl;
+            cout << endl
+                 << HIJAU << TEBAL << " film berhasil ditambahkan!" << RESET << endl;
             tekanEnter();
         }
-        else if (pil == 1) {
-            if (totalFilm == 0) {
+        else if (pil == 1)
+        {
+            if (totalFilm == 0)
+            {
+                system("cls");
+                cetakJudul("Kelola Film");
                 cout << MERAH << " belum ada film" << RESET << endl;
                 tekanEnter();
                 continue;
             }
 
-            cout << KUNING << " pilih nomor film: " << RESET;
-            int nomorFilm;
-            cin >> nomorFilm;
-            bersihBuffer();
+            string daftarFilm[MAX + 1];
+            for (int i = 0; i < totalFilm; i++)
+            {
+                int jumlahReview = 0;
+                for (int j = 0; j < totalReview; j++)
+                {
+                    if (listReview[j].idFilm == listFilm[i].id)
+                    {
+                        jumlahReview++;
+                    }
+                }
 
-            if (cin.fail() || nomorFilm < 1 || nomorFilm > totalFilm) {
-                cin.clear();
-                cin.ignore(1000, '\n');
-                cout << MERAH << " nomor tidak valid" << RESET << endl;
-                tekanEnter();
+                daftarFilm[i] = listFilm[i].judul + " (" + to_string(listFilm[i].tahun) + ") - " + listFilm[i].studio + " | review: " + to_string(jumlahReview);
+            }
+            daftarFilm[totalFilm] = "kembali";
+
+            int pilihanDaftar = pilihMenu(daftarFilm, totalFilm + 1, "Pilih Film");
+            if (pilihanDaftar == totalFilm)
+            {
                 continue;
             }
 
-            int indexPilih = nomorFilm - 1;
+            int indexPilih = pilihanDaftar;
 
-            while (true) {
+            while (true)
+            {
                 system("cls");
-                cetakJudul("Pilih Film");
-
+                cetakJudul("Film Dipilih");
                 cout << KUNING << " judul : " << RESET << listFilm[indexPilih].judul << endl;
                 cout << KUNING << " tahun : " << RESET << listFilm[indexPilih].tahun << endl;
                 cout << KUNING << " studio: " << RESET << listFilm[indexPilih].studio << endl;
-                cout << KUNING << " review: " << RESET << jumlahReviewFilm(listFilm[indexPilih].id) << endl;
-
                 string opsiFilm[] = {"edit film", "hapus film", "lihat review", "kembali"};
-                int pilFilm = pilihMenu(opsiFilm, 4, listFilm[indexPilih].judul);
+                int pilihanFilm = pilihMenu(opsiFilm, 4, "Film Dipilih");
 
-                if (pilFilm == 0) {
+                if (pilihanFilm == 0)
+                {
                     system("cls");
                     cetakJudul("Edit Film");
-                    cout << KUNING << " (kosong = tidak diubah)" << RESET << endl << endl;
+                    cout << KUNING << " kosongkan input untuk mempertahankan nilai lama" << RESET << endl
+                         << endl;
 
-                    string inputBaru;
+                    cout << KUNING << " judul  [" << listFilm[indexPilih].judul << "]: " << RESET;
+                    updateTeksJikaDiisi(listFilm[indexPilih].judul);
 
-                    cout << KUNING << " judul [" << listFilm[indexPilih].judul << "]: " << RESET;
-                    getline(cin, inputBaru);
-                    if (!inputBaru.empty()) {
-                        listFilm[indexPilih].judul = inputBaru;
-                    }
-
-                    cout << KUNING << " tahun [" << listFilm[indexPilih].tahun << "]: " << RESET;
-                    getline(cin, inputBaru);
-                    if (!inputBaru.empty()) {
-                        if (!hanyaAngka(inputBaru)) {
-                            cout << MERAH << " tahun harus angka" << RESET << endl;
-                            tekanEnter();
-                            continue;
-                        }
-                        listFilm[indexPilih].tahun = stoi(inputBaru);
+                    cout << KUNING << " tahun  [" << listFilm[indexPilih].tahun << "]: " << RESET;
+                    if (!updateAngkaJikaDiisi(listFilm[indexPilih].tahun))
+                    {
+                        cout << MERAH << " tahun harus angka" << RESET << endl;
+                        tekanEnter();
+                        continue;
                     }
 
                     cout << KUNING << " studio [" << listFilm[indexPilih].studio << "]: " << RESET;
-                    getline(cin, inputBaru);
-                    if (!inputBaru.empty()) {
-                    listFilm[indexPilih].studio = inputBaru;
-                    }
+                    updateTeksJikaDiisi(listFilm[indexPilih].studio);
 
-                    cout << endl << HIJAU << TEBAL << " film diupdate!" << RESET << endl;
+                    cout << endl
+                         << HIJAU << TEBAL << " film berhasil diupdate!" << RESET << endl;
                     tekanEnter();
                 }
-                else if (pilFilm == 1) {
+                else if (pilihanFilm == 1)
+                {
                     string opsiHapus[] = {"ya hapus", "batal"};
-                    int konfirmasi = pilihMenu(opsiHapus, 2, "Hapus Film?");
-                    if (konfirmasi == 0) {
-                        int idFilmHapus = listFilm[indexPilih].id;
-                        hapusFilm(idFilmHapus);
-                        cout << endl << HIJAU << TEBAL << " film dihapus" << RESET << endl;
+                    if (pilihMenu(opsiHapus, 2, "Hapus Film?") == 0)
+                    {
+                        int idFilm = listFilm[indexPilih].id;
+                        hapusFilm(idFilm);
+                        system("cls");
+                        cout << endl
+                             << HIJAU << TEBAL << " film berhasil dihapus" << RESET << endl;
                         tekanEnter();
                         break;
                     }
                 }
-                else if (pilFilm == 2) {
+                else if (pilihanFilm == 2)
+                {
                     lihatDetailFilm(listFilm[indexPilih].id, true);
+                    if (indexPilih >= totalFilm)
+                    {
+                        break;
+                    }
                 }
-                else {
+                else
+                {
                     break;
                 }
             }
         }
-        else {
-            return;
+        else
+        {
+            break;
         }
     }
 }

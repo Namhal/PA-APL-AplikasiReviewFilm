@@ -2,179 +2,170 @@
 #define KELOLAUSER_H
 
 #include "tampilan.h"
-#include "data.h"
-
-int jumlahReviewMilikUser(int idUser) {
-    int jumlah = 0;
-    for (int i = 0; i < totalReview; i++) {
-        if (listReview[i].idUser == idUser) {
-            jumlah++;
-        }
-    }
-    return jumlah;
-}
-
-int buatDaftarReviewMilikUser(int idUser, int daftarIndexReview[]) {
-    int jumlah = 0;
-    for (int i = 0; i < totalReview; i++) {
-        if (listReview[i].idUser == idUser) {
-            daftarIndexReview[jumlah] = i;
-            jumlah++;
-        }
-    }
-    return jumlah;
-}
 
 void menuKelolaUser() {
     while (true) {
-        system("cls");
-        cetakJudul("Kelola User");
-
-        int daftarIndexUser[MAX];
-        int jumlahUserNonAdmin = 0;
+        int daftarUserBiasa[MAX];
+        int totalUserBiasa = 0;
 
         for (int i = 0; i < totalUser; i++) {
             if (listUser[i].role != "admin") {
-                daftarIndexUser[jumlahUserNonAdmin] = i;
-                jumlahUserNonAdmin++;
+                daftarUserBiasa[totalUserBiasa] = i;
+                totalUserBiasa++;
             }
         }
 
-        if (jumlahUserNonAdmin == 0) {
-            cout << KUNING << " belum ada user selain admin" << RESET << endl;
-        } else {
-            for (int i = 0; i < jumlahUserNonAdmin; i++) {
-                int idxUser = daftarIndexUser[i];
-                cout << CYAN << " [" << i + 1 << "] " << RESET
-                    << listUser[idxUser].username
-                    << KUNING << " - " << jumlahReviewMilikUser(listUser[idxUser].id) << " review"
-                    << RESET << endl;
-            }
-        }
+        string opsiUtama[] = {"pilih user", "kembali"};
+        int pil = pilihMenu(opsiUtama, 2, "Kelola User");
 
-        string opsiAwal[2];
-        opsiAwal[0] = "pilih user";
-        opsiAwal[1] = "kembali";
-
-        int pilAwal = pilihMenu(opsiAwal, 2, "Kelola User");
-
-        if (pilAwal == 0) {
-            if (jumlahUserNonAdmin == 0) {
+        if (pil == 0) {
+            if (totalUserBiasa == 0) {
                 system("cls");
                 cetakJudul("Kelola User");
-                cout << MERAH << " belum ada user selain admin" << RESET << endl;
+                cout << MERAH << " belum ada user yang bisa dipilih" << RESET << endl;
                 tekanEnter();
                 continue;
             }
 
-            system("cls");
-            cetakJudul("Pilih User");
-            cout << KUNING << " masukkan nomor user: " << RESET;
+            string daftarUser[MAX + 1];
+            for (int i = 0; i < totalUserBiasa; i++) {
+                daftarUser[i] = listUser[daftarUserBiasa[i]].username;
+            }
+            daftarUser[totalUserBiasa] = "kembali";
 
-            int nomorUser;
-            cin >> nomorUser;
-            bersihBuffer();
-
-            if (cin.fail() || nomorUser < 1 || nomorUser > jumlahUserNonAdmin) {
-                cin.clear();
-                cin.ignore(1000, '\n');
-                cout << MERAH << " nomor user tidak valid" << RESET << endl;
-                tekanEnter();
+            int pilihanDaftar = pilihMenu(daftarUser, totalUserBiasa + 1, "Pilih User");
+            if (pilihanDaftar == totalUserBiasa) {
                 continue;
             }
 
-            int idxUser = daftarIndexUser[nomorUser - 1];
+            int indexUser = daftarUserBiasa[pilihanDaftar];
+            int idUserPilih = listUser[indexUser].id;
 
             while (true) {
                 system("cls");
                 cetakJudul("Detail User");
 
-                cout << KUNING << " username : " << RESET << listUser[idxUser].username << endl;
-                cout << KUNING << " jumlah review : " << RESET << jumlahReviewMilikUser(listUser[idxUser].id) << endl;
+                cout << KUNING << " username: " << RESET << listUser[indexUser].username << endl;
+
+                int daftarReviewUser[MAX * 4];
+                int jumlahReviewUser = 0;
+
+                for (int i = 0; i < totalReview; i++) {
+                    if (listReview[i].idUser == idUserPilih) {
+                        daftarReviewUser[jumlahReviewUser] = i;
+                        jumlahReviewUser++;
+                    }
+                }
+
+                cout << KUNING << " total review: " << RESET << jumlahReviewUser << endl;
                 cout << endl << CYAN;
                 cetakGaris('-', 42);
                 cout << KUNING << TEBAL << " daftar review" << RESET << endl;
                 cetakGaris('-', 42);
                 cout << RESET;
 
-                int daftarIndexReview[MAX * 4];
-                int jumlahReviewUser = buatDaftarReviewMilikUser(listUser[idxUser].id, daftarIndexReview);
-
                 if (jumlahReviewUser == 0) {
-                    cout << KUNING << " belum ada review" << RESET << endl;
+                    cout << KUNING << " user ini belum punya review" << RESET << endl;
                 } else {
                     for (int i = 0; i < jumlahReviewUser; i++) {
-                        int idxReview = daftarIndexReview[i];
-                        Film* filmDipilih = cariFilm(listReview[idxReview].idFilm);
-                        string namaFilm = "?";
-                        if (filmDipilih != nullptr) {
-                            namaFilm = filmDipilih->judul;
+                        Film* filmReview = cariFilm(listReview[daftarReviewUser[i]].idFilm);
+                        string judulFilm = "(film tidak ditemukan)";
+                        if (filmReview != nullptr) {
+                            judulFilm = filmReview->judul;
                         }
 
                         cout << CYAN << " [" << i + 1 << "] " << RESET
-                            << namaFilm << KUNING << " - " << listReview[idxReview].rating << "/10"
-                            << RESET << endl;
-                        cout << " " << listReview[idxReview].ulasan << endl << endl;
+                             << judulFilm
+                             << KUNING << " - " << listReview[daftarReviewUser[i]].rating << "/10" << RESET << endl;
+                        cout << "     " << listReview[daftarReviewUser[i]].ulasan << endl;
                     }
                 }
 
-                string opsiUser[3];
-                opsiUser[0] = "hapus user";
-                opsiUser[1] = "hapus review";
-                opsiUser[2] = "kembali";
+                string opsiUser[] = {"edit username", "hapus user", "hapus review", "kembali"};
+                int pilihanUser = pilihMenu(opsiUser, 4, listUser[indexUser].username);
 
-                int pilUser = pilihMenu(opsiUser, 3, listUser[idxUser].username);
+                if (pilihanUser == 0) {
+                    system("cls");
+                    cetakJudul("Edit Username");
+                    cout << KUNING << " kosongkan input untuk mempertahankan nilai lama" << RESET << endl << endl;
+                    cout << KUNING << " username [" << listUser[indexUser].username << "]: " << RESET;
 
-                if (pilUser == 0) {
-                    string opsiKonfirmasi[2];
-                    opsiKonfirmasi[0] = "ya hapus";
-                    opsiKonfirmasi[1] = "batal";
+                    string usernameBaru = bacaInputBaris();
+                    if (!usernameBaru.empty()) {
+                        bool duplikat = false;
 
-                    int konfirmasi = pilihMenu(opsiKonfirmasi, 2, "Hapus User?");
-                    if (konfirmasi == 0) {
-                        int idYangDihapus = listUser[idxUser].id;
-                        hapusUser(idYangDihapus);
+                        for (int i = 0; i < totalUser; i++) {
+                            if (i != indexUser && listUser[i].username == usernameBaru) {
+                                duplikat = true;
+                                break;
+                            }
+                        }
+
+                        if (duplikat) {
+                            cout << MERAH << " username sudah dipakai" << RESET << endl;
+                            tekanEnter();
+                            continue;
+                        }
+
+                        listUser[indexUser].username = usernameBaru;
+                    }
+
+                    cout << endl << HIJAU << TEBAL << " data user berhasil diupdate!" << RESET << endl;
+                    tekanEnter();
+
+                } else if (pilihanUser == 1) {
+                    string opsiHapus[] = {"ya hapus", "batal"};
+                    if (pilihMenu(opsiHapus, 2, "Hapus User?") == 0) {
+                        hapusUser(idUserPilih);
                         system("cls");
                         cout << endl << HIJAU << TEBAL << " user berhasil dihapus" << RESET << endl;
                         tekanEnter();
                         break;
                     }
-                } else if (pilUser == 1) {
+
+                } else if (pilihanUser == 2) {
                     if (jumlahReviewUser == 0) {
-                        system("cls");
-                        cetakJudul("Hapus Review");
-                        cout << KUNING << " user ini belum punya review" << RESET << endl;
+                        cout << MERAH << " user ini belum punya review" << RESET << endl;
                         tekanEnter();
                         continue;
                     }
 
-                    system("cls");
-                    cetakJudul("Hapus Review");
-                    cout << KUNING << " pilih nomor review yang dihapus: " << RESET;
+                    string daftarReview[MAX * 4 + 1];
+                    for (int i = 0; i < jumlahReviewUser; i++) {
+                        Film* filmReview = cariFilm(listReview[daftarReviewUser[i]].idFilm);
+                        string judulFilm = "(film tidak ditemukan)";
+                        if (filmReview != nullptr) {
+                            judulFilm = filmReview->judul;
+                        }
 
-                    int nomorReview;
-                    cin >> nomorReview;
-                    bersihBuffer();
+                        daftarReview[i] = judulFilm + " - " + to_string(listReview[daftarReviewUser[i]].rating) + "/10";
+                    }
+                    daftarReview[jumlahReviewUser] = "kembali";
 
-                    if (cin.fail() || nomorReview < 1 || nomorReview > jumlahReviewUser) {
-                        cin.clear();
-                        cin.ignore(1000, '\n');
-                        cout << MERAH << " nomor review tidak valid" << RESET << endl;
-                        tekanEnter();
+                    int pilihanReview = pilihMenu(daftarReview, jumlahReviewUser + 1, "Hapus Review");
+                    if (pilihanReview == jumlahReviewUser) {
                         continue;
                     }
 
-                    hapusReviewDi(daftarIndexReview[nomorReview - 1]);
-
+                    hapusReviewDi(daftarReviewUser[pilihanReview]);
                     system("cls");
                     cout << endl << HIJAU << TEBAL << " review berhasil dihapus" << RESET << endl;
                     tekanEnter();
+
                 } else {
                     break;
                 }
+
+                for (int i = 0; i < totalUser; i++) {
+                    if (listUser[i].id == idUserPilih) {
+                        indexUser = i;
+                        break;
+                    }
+                }
             }
+
         } else {
-            return;
+            break;
         }
     }
 }
